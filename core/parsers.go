@@ -261,14 +261,33 @@ func SeperatedOne(seperatorParser Parser, valueParser Parser) Parser {
 	})
 }
 
-func Between(left Parser, content Parser, right Parser) Parser {
+func WhiteSpace() Parser {
+	return Lazy(func() Parser {
+		return Many(
+			Or([]Parser{
+				String(" "),
+				String("\t"),
+				String("\n"),
+				String("\r"),
+			}),
+		).Map(func(result any) any {
+			return ""
+		})
+	})
+}
+
+func Between(brackets string, content Parser) Parser {
 	return Lazy(func() Parser {
 		return And([]Parser{
-			left,
+			WhiteSpace(),
+			String(string(brackets[0])),
+			WhiteSpace(),
 			content,
-			right,
+			WhiteSpace(),
+			String(string(brackets[1])),
+			WhiteSpace(),
 		}).Map(func(result any) any {
-			return result.([]any)[1]
+			return result.([]any)[3]
 		})
 	})
 }
@@ -321,21 +340,6 @@ func Number() Parser {
 				value += res[2].(string)
 			}
 			return value
-		})
-	})
-}
-
-func WhiteSpace() Parser {
-	return Lazy(func() Parser {
-		return Many(
-			Or([]Parser{
-				String(" "),
-				String("\t"),
-				String("\n"),
-				String("\r"),
-			}),
-		).Map(func(result any) any {
-			return ""
 		})
 	})
 }
