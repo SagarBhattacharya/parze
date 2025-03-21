@@ -27,6 +27,7 @@ func (state State) SetResult(result any) State {
 func (state State) SetError(message string) State {
 	state.IsError = true
 	state.Error = message
+	state.Result = nil
 	return state
 }
 

@@ -1,30 +1,29 @@
 package main
 
-import (
-	"fmt"
-	"strings"
+import "github.com/SagarBhattacharya/parze/core"
 
-	"github.com/SagarBhattacharya/parze/core"
-)
-
-type Res struct {
-	Value string
-}
+// "string:hello"
+// "number:48"
 
 func main() {
-	// parser := core.Sequence([]core.Parser{
-	// 	core.String("Hello there!"),
-	// 	core.String("Goodbye world!"),
-	// })
+	parser := core.And([]core.Parser{
+		core.And([]core.Parser{
+			core.Letters(),
+			core.String(":"),
+		}).Map(func(result any) any {
+			return result.([]any)[0]
+		}).Then(func(result any) core.Parser {
+			switch result.(string) {
+			case "string":
+				return core.Letters()
+			case "number":
+				return core.Digits()
+			default:
+				return core.Parser{}
+			}
+		}),
+	})
 
-	parser := core.String("Hello").
-		Map(func(result any) any {
-			return strings.ToUpper(result.(string))
-		}).
-		ErrorMap(func(message string, index int) string {
-			return fmt.Sprintf("Expected a greeting at %d", index)
-		})
-
-	state := parser.Run("Hello world!")
+	state := parser.Run("number:48")
 	state.Display()
 }

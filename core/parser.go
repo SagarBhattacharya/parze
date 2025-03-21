@@ -18,6 +18,19 @@ func (p Parser) Map(fn func(result any) any) Parser {
 	}
 }
 
+func (p Parser) Then(fn func(result any) Parser) Parser {
+	return Parser{
+		StateTransformerFn: func(state State) State {
+			nextState := p.StateTransformerFn(state)
+			if nextState.IsError {
+				return nextState
+			}
+			nextParser := fn(nextState.Result)
+			return nextParser.StateTransformerFn(nextState)
+		},
+	}
+}
+
 func (p Parser) ErrorMap(fn func(message string, index int) string) Parser {
 	return Parser{
 		StateTransformerFn: func(state State) State {
