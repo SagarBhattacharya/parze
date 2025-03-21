@@ -1,0 +1,2 @@
+operator : "+" | "-" | "*" | "/"
+expr : NUMBER | "(" <operator> " " <expr> " " <expr> ")"
